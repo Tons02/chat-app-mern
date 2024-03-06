@@ -24,9 +24,8 @@ export const sendMessage = async (req, res) => {
             receiverId,
             message,
         });
-        console.log(newMessage)
         if (newMessage) {
-            conversation.message.push(newMessage._id);
+            conversation.messages.push(newMessage._id);
         }
         
         //Socket IO functionality will go here
@@ -35,7 +34,7 @@ export const sendMessage = async (req, res) => {
         //await newMessage.save
 
         //this will run in parallel
-        await Promise.all(conversation.save(), newMessage.save());
+        await Promise.all([conversation.save(), newMessage.save()]);
 
         res.status(200).json({
             message: "Message sent successfully",
@@ -50,5 +49,32 @@ export const sendMessage = async (req, res) => {
     }
 };
 
+export const getMessage = async (req, res) => {
+    try {
+        const { id: userToChatId } = req.params;
+        const senderId = req.user._id;
 
-export default sendMessage;
+        const conversation = await Conversation.findOne({
+            participants: { $all: [senderId, userToChatId] },
+       }).populate('messages'); // NOT REFERENCE BUT ACTUAL MESSAGE
+
+        if(!conversation) {
+            res.status(200).json({
+                message: "Message Successfully Get",
+                data: []
+            });
+        }
+        const message = conversation.messages;
+        res.status(200).json({
+            message: "Message Successfully Get",
+            data: message
+        });
+
+    } catch (error) {
+        console.error("Error get message:", error);
+        res.status(500).json({
+            error: "Internal Server Error"
+        });
+    }
+}
+

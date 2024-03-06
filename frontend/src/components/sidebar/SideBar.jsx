@@ -1,7 +1,7 @@
 import Conversations from "./Conversations";
-import Conversation from "./Conversation";
 import SearchInput from "./SearchInput";
 import LogoutButton from "./LogoutButton";
+import MessageContainer from "../messages/MessageContainer";
 
 const Sidebar = () => {
 	return (
